@@ -15,20 +15,31 @@ import { useToast } from "@/components/ui/use-toast";
 import { UpdateProfileValues, updateProfileSchema } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { updateProfile } from "./actions";
+import { updateProfile } from "../actions";
+import { User } from "next-auth";
+import { useSession } from "next-auth/react";
 
-export default function SettingsPage() {
+type Settings = {
+  user: User;
+};
+
+export default function Setting({ user }: Settings) {
+  const { name } = user;
   const { toast } = useToast();
+  const { update } = useSession();
 
   const form = useForm<UpdateProfileValues>({
     resolver: zodResolver(updateProfileSchema),
-    // TODO: Add default value from current user
-    defaultValues: { name: "" },
+    // Add default value from current user
+    defaultValues: { name: name || "" },
   });
 
   async function onSubmit(data: UpdateProfileValues) {
     try {
       await updateProfile(data);
+      // revalidating the app in the above action will only update user details (by refreshing the app) for SERVER components
+      // update the session explicitly to reflect user details changes in all CLIENT components
+      update();
       toast({ description: "Profile updated." });
     } catch (error) {
       toast({

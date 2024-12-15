@@ -29,7 +29,7 @@ export async function generateMetadata({ params: { id } }: PageProps) {
 }
 
 export default async function Page({ params: { id } }: PageProps) {
-  // Artificial delay to showcase static caching
+  // Artificial delay to render this page using SSG (static side generation)
   await new Promise((resolve) => setTimeout(resolve, 1500));
 
   const user = await getUser(id);

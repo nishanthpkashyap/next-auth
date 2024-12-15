@@ -1,12 +1,23 @@
 import { Metadata } from "next";
-import SettingsPage from "./SettingsPage";
+import Settings from "./sections/settings";
+import getSession from "@/lib/session";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Settings",
 };
 
 export default async function Page() {
-  // TODO: Protect this page via authentication
+  {
+    /* calling getSession() and not auth(), as getSession() is the cached version of auth() 
+        const session = await auth();
+    */
+  }
+  const session = await getSession();
+  const user = session?.user;
 
-  return <SettingsPage />;
+  // Protect this page via authentication
+  if (!user) redirect("/api/auth/signin?callbackUrl=/settings");
+
+  return <Settings user={user} />;
 }
